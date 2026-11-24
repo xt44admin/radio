@@ -1,0 +1,6 @@
+kind: wasmer.io/App.v0
+name: gerzet
+owner: xt44h92ilaxl
+package: .
+scaling:
+  mode: single_concurrency
