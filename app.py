@@ -6,11 +6,11 @@ clients = set()
 task = None
 async def broadcast():
  global task
- cmd = ["ffmpeg", "-i", "https://freeradio.wasmer.app/radcap.php", "-vn", "-c:a", "libmp3lame", "-b:a", "64k", "-q:a", "5", "-ar", "44100", "-ac", "2", "-f", "mp3", "pipe:1"]
+ cmd = ["ffmpeg", "-fflags", "nobuffer", "-flags", "low_delay", "-probesize", "32768", "-analyzeduration", "0", "-i", "https://freeradio.wasmer.app/radcap.php", "-vn", "-c:a", "libmp3lame", "-b:a", "64k", "-q:a", "5", "-ar", "44100", "-ac", "2", "-f", "mp3", "pipe:1"]
  p = await asyncio.create_subprocess_exec(*cmd, stdout=asyncio.subprocess.PIPE)
  try:
   while clients:
-   chunk = await p.stdout.read(4096)
+   chunk = await p.stdout.read(1024)
    if not chunk: break
    for q in list(clients):
     if q.full(): q.get_nowait()
