@@ -7,7 +7,7 @@ clients = set()
 ffmpeg_task = None
 async def broadcast():
  global ffmpeg_task
- cmd = ["ffmpeg", "-reconnect", "1", "-reconnect_streamed", "1", "-reconnect_delay_max", "5", "-i", STREAM_URL, "-vn", "-c:a", "libmp3lame", "-b:a", "64k", "-q:a", "5", "-ar", "44100", "-ac", "2", "-f", "mp3", "pipe:1"]
+ cmd = ["ffmpeg", "-user_agent", "VLC/3.0.18", "-reconnect", "1", "-reconnect_streamed", "1", "-reconnect_delay_max", "5", "-i", STREAM_URL, "-vn", "-c:a", "libmp3lame", "-b:a", "64k", "-q:a", "5", "-ar", "44100", "-ac", "2", "-f", "mp3", "pipe:1"]
  proc = await asyncio.create_subprocess_exec(*cmd, stdout=asyncio.subprocess.PIPE)
  try:
   while clients:
