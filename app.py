@@ -1,4 +1,5 @@
 import asyncio
+import urllib.request
 from fastapi import FastAPI, Response
 from fastapi.responses import StreamingResponse
 app = FastAPI()
@@ -7,8 +8,23 @@ clients = set()
 ffmpeg_task = None
 async def broadcast():
  global ffmpeg_task
- cmd = ["ffmpeg", "-user_agent", "VLC/3.0.18", "-reconnect", "1", "-reconnect_streamed", "1", "-reconnect_delay_max", "5", "-i", STREAM_URL, "-vn", "-c:a", "libmp3lame", "-b:a", "64k", "-q:a", "5", "-ar", "44100", "-ac", "2", "-f", "mp3", "pipe:1"]
- proc = await asyncio.create_subprocess_exec(*cmd, stdout=asyncio.subprocess.PIPE)
+ cmd = ["ffmpeg", "-f", "mp3", "-i", "pipe:0", "-vn", "-c:a", "libmp3lame", "-b:a", "64k", "-q:a", "5", "-ar", "44100", "-ac", "2", "-f", "mp3", "pipe:1"]
+ proc = await asyncio.create_subprocess_exec(*cmd, stdin=asyncio.subprocess.PIPE, stdout=asyncio.subprocess.PIPE)
+ loop = asyncio.get_running_loop()
+ def feed():
+  try:
+   req = urllib.request.Request(STREAM_URL, headers={"User-Agent": "VLC/3.0.18", "Icy-MetaData": "0"})
+   with urllib.request.urlopen(req, timeout=10) as r:
+    while clients and proc.returncode is None:
+     data = r.read(4096)
+     if not data: break
+     proc.stdin.write(data)
+  except Exception as e:
+   print("UPSTREAM ERR:", e)
+  finally:
+   try: proc.stdin.close()
+   except Exception: pass
+ loop.run_in_executor(None, feed)
  try:
   while clients:
    chunk = await proc.stdout.read(2048)
