@@ -8,7 +8,7 @@ clients = set()
 ffmpeg_task = None
 async def broadcast():
  global ffmpeg_task
- cmd = ["ffmpeg", "-f", "mp3", "-i", "pipe:0", "-vn", "-c:a", "libmp3lame", "-b:a", "64k", "-q:a", "5", "-ar", "44100", "-ac", "2", "-f", "mp3", "pipe:1"]
+ cmd = ["ffmpeg", "-i", "pipe:0", "-vn", "-c:a", "libmp3lame", "-b:a", "64k", "-q:a", "5", "-ar", "44100", "-ac", "2", "-f", "mp3", "pipe:1"]
  proc = await asyncio.create_subprocess_exec(*cmd, stdin=asyncio.subprocess.PIPE, stdout=asyncio.subprocess.PIPE)
  loop = asyncio.get_running_loop()
  def feed():
