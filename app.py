@@ -3,7 +3,7 @@ import urllib.request
 from fastapi import FastAPI, Response
 from fastapi.responses import StreamingResponse
 app = FastAPI()
-STREAM_URL = "http://79.111.14.76:8000/beatdown"
+STREAM_URL = "http://79.111.14.76:8000/beatdown".strip()
 clients = set()
 ffmpeg_task = None
 async def broadcast():
@@ -37,7 +37,7 @@ async def broadcast():
   except ProcessLookupError: pass
   await proc.wait()
   ffmpeg_task = None
-@app.get("/")
+@app.api_route("/", methods=["GET", "HEAD"])
 def health(): return {"listeners": len(clients)}
 @app.head("/{name}.mp3")
 def head_stream(name: str):
